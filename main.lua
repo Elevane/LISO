@@ -24,6 +24,7 @@ function isoToTile(iso_x, iso_y)
 end
 
 function love.update(dt)
+    
     local speed = 200
     if love.keyboard.isDown("right") then
         camera.x = camera.x + speed * dt
