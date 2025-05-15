@@ -1,20 +1,39 @@
+local knightIdle7 = require("assets.Knight_Idle_dir7")
 local generator = require("generator")
 local tileWidth = 64
 local tileHeight = 32
 local mapSize = 2000
 local tilemap
-local playerSprite
+
 local camera = {
     x = 0,
     y = 0,
     width = 920 * 2,
     height = 1240
 }
+local spriteSheet
+local quads = {}
+local currentFrame = 1
+local timer = 0
+
 
 function love.load()
     tilemap = generator.generateMap(mapSize)
     camera.x = ((mapSize - mapSize) * (tileWidth / 2))
     camera.y = ((mapSize + mapSize) * (tileHeight / 2)) / 2
+
+    --load idle animation
+    spriteSheet = love.graphics.newImage("assets/Knight_Idle_dir7.png")
+
+    -- Crée les quads pour chaque frame
+    for i, frameData in ipairs(knightIdle7.frames) do
+        local f = frameData.frame
+        local quad = love.graphics.newQuad(f.x, f.y, f.w, f.h, spriteSheet:getDimensions())
+        table.insert(quads, {
+            quad = quad,
+            duration = frameData.duration / 1000 -- converti ms → secondes
+        })
+    end
 end
 
 function isoToTile(iso_x, iso_y)
@@ -24,7 +43,16 @@ function isoToTile(iso_x, iso_y)
 end
 
 function love.update(dt)
-    
+    if #quads == 0 then return end
+    timer = timer + dt
+    if timer >= quads[currentFrame].duration then
+        timer = timer - quads[currentFrame].duration
+        currentFrame = currentFrame + 1
+
+        if currentFrame > #quads then
+            currentFrame = 1
+        end
+    end
     local speed = 200
     if love.keyboard.isDown("right") then
         camera.x = camera.x + speed * dt
@@ -44,17 +72,16 @@ function love.update(dt)
 end
 
 local function drawChar()
-    local screenWidth = love.graphics.getWidth()
-    local screenHeight = love.graphics.getHeight()
-    local squareSize = 40
+    if #quads == 0 then return end
 
-    love.graphics.setColor(1, 0, 0, 1)
-    love.graphics.rectangle("fill",
-        screenWidth / 2 - squareSize / 2,
-        screenHeight / 2 - squareSize / 2,
-        squareSize,
-        squareSize
-    )
+    local quad = quads[currentFrame].quad
+
+    -- Centre l'animation au milieu de l'écran
+    local x = love.graphics.getWidth() / 2
+    local y = love.graphics.getHeight() / 2
+
+    -- Dessine en centrant le sprite
+    love.graphics.draw(spriteSheet, quad, x, y, 0, 1, 1, 128, 128) -- 128 = centre (256/2)
 end
 
 function love.draw()
