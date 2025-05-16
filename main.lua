@@ -12,7 +12,7 @@ function love.update(dt)
     local left = love.keyboard.isDown("left")
     local up = love.keyboard.isDown("up")
     local down = love.keyboard.isDown("down")
-    
+    camera.PreUpdate()
     local numberOfKeysPressed = (right and 1 or 0) + (left and 1 or 0) + (up and 1 or 0) + (down and 1 or 0)
     if numberOfKeysPressed > 0 then
         player.moved = true
@@ -28,7 +28,7 @@ function love.update(dt)
                 camera.moveNorth()
             elseif down then
                 player.currentDirection = "south"
-                camera.moveSouth()    
+                camera.moveSouth()
             end
         elseif numberOfKeysPressed == 2 then
             -- Deux touches appuyées : gérer les diagonales
@@ -44,24 +44,21 @@ function love.update(dt)
             elseif left and up then
                 player.currentDirection = "northWest"
                 camera.moveNorthWest()
-
             end
         end
-    else    
+    else
         player.moved = false
     end
+    
     camera.Update()
     player.Update(dt)
-
     if love.keyboard.isDown("escape") then
         love.event.quit()
     end
-
 end
 
 
 function love.draw()
     camera.Draw()
     player.Draw()
-    love.graphics.setColor(1, 1, 1)
 end
