@@ -81,15 +81,15 @@ local Player = {
 }
 
 function Player.Load()
+
     Player.quads = {}
     local collection 
+    
     if Player.moved then
         collection = Player.animations.directions
     else
         collection = Player.animations.idles
     end
-    
-    print(Player.currentDirection)
     Player.spriteSheet = love.graphics.newImage(collection[Player.direction].filepath)
     local animData = collection[Player.direction].animationData
     for i, frameData in ipairs(animData.frames) do
@@ -102,18 +102,15 @@ function Player.Load()
     end
 end
 
-function Player.Update(dt)
-    Player.previousDirection = Player.currentDirection
+function Player.Update(dt) 
     -- Reload animation if direction changed
     if Player.previousDirection ~= Player.currentDirection or Player.previousMoved ~= Player.moved then
-        Player.Load()
         Player.currentFrame = 1
-        Player.timer = 0
+        Player.timer = 0    
+        Player.Load()   
     end
-
     -- Animation frame update
     if #Player.quads == 0 then return end
-
     Player.timer = Player.timer + dt
     if Player.timer >= Player.quads[Player.currentFrame].duration then
         Player.timer = Player.timer - Player.quads[Player.currentFrame].duration
@@ -122,6 +119,7 @@ function Player.Update(dt)
             Player.currentFrame = 1
         end
     end
+   
 end
 
 function Player.Draw()

@@ -3,7 +3,7 @@
 local ms = 200
 local tileWidth = 64
 local tileHeight = 32
-local speed = 3 --vitesse de déplacement
+local speed = 5 --vitesse de déplacement
 local generator = require("generator")
 local tilemap = generator.generateMap(ms)
 
@@ -72,7 +72,7 @@ function  Camera.Draw()
     end
 end
 function Camera.PreUpdate()
-    Camera.moveX, Camera.moveY = Camera.moveX-0.3, Camera.moveY-0.3 -- deceleration
+    Camera.moveX, Camera.moveY = 0, 0 -- deceleration
 end
 
 function Camera.Update()
@@ -93,8 +93,7 @@ end
 
 function Camera.moveSouthWest()
     Camera.moveX = Camera.moveX - Camera.stepX / 2
-    Camera.moveY = Camera.moveY + Camera.stepY / 2
-    
+    Camera.moveY = Camera.moveY + Camera.stepY / 2  
 end
 
 function  Camera.moveNorthWest()
