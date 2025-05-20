@@ -72,7 +72,6 @@ local Player = {
     quads = {},
     moved = false,
     previousMoved = false,
-    direction = "south",
     previousDirection = "south",
     currentDirection = "south",
     spriteSheet = {},
@@ -90,16 +89,18 @@ function Player.Load()
     else
         collection = Player.animations.idles
     end
-    Player.spriteSheet = love.graphics.newImage(collection[Player.direction].filepath)
-    local animData = collection[Player.direction].animationData
+    Player.spriteSheet = love.graphics.newImage(collection[Player.currentDirection].filepath)
+    local animData = collection[Player.currentDirection].animationData
     for i, frameData in ipairs(animData.frames) do
         local f = frameData.frame
         local quad = love.graphics.newQuad(f.x, f.y, f.w, f.h, Player.spriteSheet:getDimensions())
         table.insert(Player.quads, {
             quad = quad,
-            duration = frameData.duration / 1000  -- convertir ms en secondes
+            duration = frameData.duration / 1000 -- convertir ms en secondes
         })
     end
+    Player.previousDirection = Player.currentDirection
+    Player.previousMoved = Player.moved
 end
 
 function Player.Update(dt) 

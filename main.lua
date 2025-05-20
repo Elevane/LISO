@@ -20,31 +20,31 @@ function love.update(dt)
         player.moved = true    
         if numberOfKeysPressed == 1 then
             if right then
-                player.direction = "east"
+                player.currentDirection = "east"
                 camera.moveEast()
             elseif left then
-                player.direction = "west"
+                player.currentDirection = "west"
                 camera.moveWest()
             elseif up then
-                player.direction = "north"
+                player.currentDirection = "north"
                 camera.moveNorth()
             elseif down then
-                player.direction = "south"
+                player.currentDirection = "south"
                 camera.moveSouth()
             end
         elseif numberOfKeysPressed == 2 then
             -- Deux touches appuyées : gérer les diagonales
             if right and down then
-                player.direction = "southEast"
+                player.currentDirection = "southEast"
                 camera.moveSouthEast()
             elseif right and up then
-                player.direction = "northEast"
+                player.currentDirection = "northEast"
                 camera.moveNorthEast()
             elseif left and down then
-                player.direction = "southWest"
+                player.currentDirection = "southWest"
                 camera.moveSouthWest()
             elseif left and up then
-                player.direction = "northWest"
+                player.currentDirection = "northWest"
                 camera.moveNorthWest()
             end
         end
