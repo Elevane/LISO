@@ -1,10 +1,12 @@
 
 local player = require("player")
 local camera = require("camera")
-
+local generator = require("generator")
+local tilemap = generator.generateMap(ms)
 
 function love.load() 
     player.Load()
+    camera.Load(tilemap)
 end
 
 function love.update(dt)
@@ -62,6 +64,6 @@ end
 
 
 function love.draw()
-    camera.Draw()
+    camera.Draw(tilemap)
     player.Draw()
 end
