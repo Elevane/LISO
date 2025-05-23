@@ -25,6 +25,15 @@ local function isoToTile(iso_x, iso_y)
     return col, row
 end
 
+function Camera.IsBlockedAtIsoPos(iso_x, iso_y)
+    local col, row = isoToTile(iso_x, iso_y)
+    col = math.floor(col + 0.5)
+    row = math.floor(row + 0.5)
+    if Camera.tilemap[row][col] == 0 then
+        return false
+    end
+    return true
+end
 
 function Camera.SetDepartPoint()
     -- Calculer la taille de la carte
@@ -48,8 +57,8 @@ function Camera.SetDepartPoint()
     local centerX = (centerTileX - centerTileY) * (tileWidth / 2)
     local centerY = (centerTileX + centerTileY) * (tileHeight / 2)
 
-    Camera.x = centerX
-    Camera.y = centerY
+    Camera.x = centerX + 520
+    Camera.y = centerY - 240
     Camera.initialized = true
     
 end
@@ -119,8 +128,17 @@ function Camera.PreUpdate()
 end
 
 function Camera.Update()
-    Camera.x = Camera.x + Camera.moveX
-    Camera.y = Camera.y + Camera.moveY
+    local newX = Camera.x + Camera.moveX
+    local newY = Camera.y + Camera.moveY
+
+    print("Camera position: ", newX,newY)
+    if not Camera.IsBlockedAtIsoPos(newX, newY) then
+        Camera.x = newX
+        Camera.y = newY
+    else
+        Camera.moveX = 0
+        Camera.moveY = 0
+    end
 end
 
 function Camera.moveNorth()
@@ -139,14 +157,13 @@ function Camera.moveSouthWest()
     Camera.moveY = Camera.moveY + Camera.stepY / 2  
 end
 
-function  Camera.moveNorthWest()
-    Camera.moveX =  Camera.moveX -  Camera.stepX / 2
+function Camera.moveNorthWest()
+    Camera.moveX = Camera.moveX - Camera.stepX / 2
     Camera.moveY = Camera.moveY - Camera.stepY / 2
-    
 end
+
 function Camera.moveSouth()
     Camera.moveY = Camera.moveY + Camera.stepY / 2
-    
 end
 
 function Camera.moveEast()
