@@ -1,6 +1,3 @@
-
-
-local ms = 200
 local tileWidth = 64
 local tileHeight = 32
 local speed = 5 --vitesse de déplacement
@@ -8,12 +5,11 @@ local speed = 5 --vitesse de déplacement
 
 local Camera = {
     initialized = false,
-    mapSize = ms,
-    x = ((ms - ms) * (tileWidth / 2)),
-    y = ((ms + ms) * (tileHeight / 2)) / 2,
+    x = 0,
+    y = 0,
     width = 920 * 2,
     height = 1240,
-    moveX= 0,
+    moveX = 0,
     moveY = 0,
     stepX = speed,
     stepY = speed,
@@ -60,22 +56,22 @@ function Camera.SetDepartPoint()
     Camera.x = centerX + 520
     Camera.y = centerY - 240
     Camera.initialized = true
-    
 end
+
 function Camera.DrawMiniMap(tilemap)
-   
+
 end
 
 function Camera.Draw()
     if not Camera.initialized then
-       Camera.SetDepartPoint()
+        Camera.SetDepartPoint()
     end
     local buffer = 2
     local corners = {
-        {x = Camera.x - Camera.width / 2, y = Camera.y},
-        {x = Camera.x + Camera.width / 2, y = Camera.y},
-        {x = Camera.x - Camera.width / 2, y = Camera.y + Camera.height},
-        {x = Camera.x + Camera.width / 2, y = Camera.y + Camera.height},
+        { x = Camera.x - Camera.width / 2, y = Camera.y },
+        { x = Camera.x + Camera.width / 2, y = Camera.y },
+        { x = Camera.x - Camera.width / 2, y = Camera.y + Camera.height },
+        { x = Camera.x + Camera.width / 2, y = Camera.y + Camera.height },
     }
     local min_col, max_col = math.huge, -math.huge
     local min_row, max_row = math.huge, -math.huge
@@ -93,7 +89,7 @@ function Camera.Draw()
     for row = start_row, end_row do
         for col = start_col, end_col do
             local tile = Camera.tilemap[row] and Camera.tilemap[row][col]
-           
+
             if tile then
                 local iso_x = (col - row) * (tileWidth / 2)
                 local iso_y = (col + row) * (tileHeight / 2)
@@ -130,8 +126,6 @@ end
 function Camera.Update()
     local newX = Camera.x + Camera.moveX
     local newY = Camera.y + Camera.moveY
-
-    print("Camera position: ", newX,newY)
     if not Camera.IsBlockedAtIsoPos(newX, newY) then
         Camera.x = newX
         Camera.y = newY
@@ -143,18 +137,16 @@ end
 
 function Camera.moveNorth()
     Camera.moveY = Camera.moveY - Camera.stepY / 2
-    
 end
 
 function Camera.moveNorthEast()
     Camera.moveX = Camera.moveX + Camera.stepX / 2
     Camera.moveY = Camera.moveY - Camera.stepY / 2
-    
 end
 
 function Camera.moveSouthWest()
     Camera.moveX = Camera.moveX - Camera.stepX / 2
-    Camera.moveY = Camera.moveY + Camera.stepY / 2  
+    Camera.moveY = Camera.moveY + Camera.stepY / 2
 end
 
 function Camera.moveNorthWest()
@@ -168,18 +160,15 @@ end
 
 function Camera.moveEast()
     Camera.moveX = Camera.moveX + Camera.stepX / 2
-    
 end
 
 function Camera.moveSouthEast()
-    Camera.moveX =  Camera.moveX +  Camera.stepX / 2
-    Camera.moveY = Camera.moveY +  Camera.stepY / 2
-    
+    Camera.moveX = Camera.moveX + Camera.stepX / 2
+    Camera.moveY = Camera.moveY + Camera.stepY / 2
 end
 
 function Camera.moveWest()
     Camera.moveX = Camera.moveX - Camera.stepX / 2
 end
-
 
 return Camera

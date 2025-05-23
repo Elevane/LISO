@@ -1,12 +1,9 @@
 local mainMenu = require("mainMenu")
 local game = require("game")
 local screen = "main"
-local screens = {
-    { name = "main", title = "Main Menu" },
-    { name = "game", title = "Game" },
-}
 
 local function goTo()
+    print("Going to game screen")
     screen = "game"
 end
 
@@ -22,7 +19,7 @@ function love.update(dt)
     if screen == "main" then
         mainMenu.Update(goTo)
     elseif screen == "game" then
-        game.Update(dt)
+        game.Update()
     end
 end
 

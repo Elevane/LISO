@@ -2,7 +2,7 @@ local player = require("player")
 local camera = require("camera")
 local generator = require("generator")
 
-local tilemap = generator.generateMap(ms)
+local tilemap = generator.generateMap()
 local game = {}
 
 function game.Load()
@@ -11,7 +11,7 @@ function game.Load()
 end
 
 function game.Draw()
-    camera.Draw(tilemap)
+    camera.Draw()
     player.Draw()
 end
 
