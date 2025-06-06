@@ -29,35 +29,47 @@ function game.Update()
     local left = love.keyboard.isDown("left")
     local up = love.keyboard.isDown("up")
     local down = love.keyboard.isDown("down")
+    local mouseX, mouseY = love.mouse.getPosition()
+    local windowWidth = love.graphics.getWidth()
+    local windowHeight = love.graphics.getHeight()
+
+    local edgeThreshold = 20 -- pixels depuis le bord
+
+    -- Contrôle souris dans les bords
+    local mouseRight = mouseX >= windowWidth - edgeThreshold
+    local mouseLeft = mouseX <= edgeThreshold
+    local mouseUp = mouseY <= edgeThreshold
+    local mouseDown = mouseY >= windowHeight - edgeThreshold
+
+    -- Fusion clavier + souris
+    local moveRight = right or mouseRight
+    local moveLeft = left or mouseLeft
+    local moveUp = up or mouseUp
+    local moveDown = down or mouseDown
+
     sideBar.Update()
     camera.PreUpdate()
-    local numberOfKeysPressed = (right and 1 or 0) + (left and 1 or 0) + (up and 1 or 0) + (down and 1 or 0)
-    if numberOfKeysPressed > 0 then
-        if numberOfKeysPressed == 1 then
-            if right then
-                camera.moveEast()
-            elseif left then
-                camera.moveWest()
-            elseif up then
-                camera.moveNorth()
-            elseif down then
-                camera.moveSouth()
-            end
-        elseif numberOfKeysPressed == 2 then
-            -- Deux touches appuyées : gérer les diagonales
-            if right and down then
-                camera.moveSouthEast()
-            elseif right and up then
-                camera.moveNorthEast()
-            elseif left and down then
-                camera.moveSouthWest()
-            elseif left and up then
-                camera.moveNorthWest()
-            end
-        end
-    end
-    camera.Update()
 
+    -- Gestion diagonales + directions simples
+    if moveRight and moveDown then
+        camera.moveSouthEast()
+    elseif moveRight and moveUp then
+        camera.moveNorthEast()
+    elseif moveLeft and moveDown then
+        camera.moveSouthWest()
+    elseif moveLeft and moveUp then
+        camera.moveNorthWest()
+    elseif moveRight then
+        camera.moveEast()
+    elseif moveLeft then
+        camera.moveWest()
+    elseif moveUp then
+        camera.moveNorth()
+    elseif moveDown then
+        camera.moveSouth()
+    end
+
+    camera.Update()
 
     if love.keyboard.isDown("escape") then
         love.event.quit()

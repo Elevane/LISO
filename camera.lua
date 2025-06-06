@@ -54,7 +54,8 @@ function PointInMenu(mouseX, mouseY)
         mouseY >= menuy and mouseY <= menuy + menuHeight
 end
 
-function pointInPolygon(points, px, py)
+--
+function pointInIsoTile(points, px, py)
     local inside = false
     local n = #points / 2
     local j = n
@@ -78,6 +79,7 @@ function Camera.Draw()
         Camera.SetDepartPoint()
     end
     local buffer = 2
+    --define viewport
     local corners = {
         { x = Camera.x - Camera.width / 2, y = Camera.y },
         { x = Camera.x + Camera.width / 2, y = Camera.y },
@@ -86,6 +88,8 @@ function Camera.Draw()
     }
     local min_col, max_col = math.huge, -math.huge
     local min_row, max_row = math.huge, -math.huge
+
+
     for _, corner in ipairs(corners) do
         local col, row = isoToTile(corner.x, corner.y)
         min_col = math.min(min_col, col)
@@ -93,11 +97,14 @@ function Camera.Draw()
         min_row = math.min(min_row, row)
         max_row = math.max(max_row, row)
     end
+    --define viewport in tilemap
     local start_col = math.floor(min_col) - buffer
     local end_col = math.ceil(max_col) + buffer
     local start_row = math.floor(min_row) - buffer
     local end_row = math.ceil(max_row) + buffer
     local mouseX, mouseY = love.mouse.getPosition()
+
+    --draw tiles
     for row = start_row, end_row do
         for col = start_col, end_col do
             local tile = Camera.tilemap[row] and Camera.tilemap[row][col]
@@ -125,7 +132,7 @@ function Camera.Draw()
                 love.graphics.setColor(0, 0, 0)
             end
             if
-                pointInPolygon(points, mouseX, mouseY) and not PointInMenu(mouseX, mouseY)
+                pointInIsoTile(points, mouseX, mouseY) and not PointInMenu(mouseX, mouseY)
             then
                 love.graphics.setColor(0, 1, 0)
             end
@@ -146,8 +153,8 @@ function Camera.PreUpdate()
 end
 
 function Camera.Update()
-    Camera.moveX = Camera.x + Camera.moveX
-    Camera.moveY = Camera.y + Camera.moveY
+    Camera.x = Camera.x + Camera.moveX
+    Camera.y = Camera.y + Camera.moveY
 end
 
 function Camera.moveNorth()
