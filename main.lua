@@ -4,7 +4,6 @@ local screen = "main"
 local cursorImage
 
 local function goTo(screenName)
-    print("goto", screenName)
     if screenName == "Play" then
         screen = "game"
         game.Load()

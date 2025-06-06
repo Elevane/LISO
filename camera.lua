@@ -149,7 +149,7 @@ function Camera.Load(tilemap)
 end
 
 function Camera.PreUpdate()
-    Camera.moveX, Camera.moveY = 0, 0 -- deceleration
+    Camera.moveX, Camera.moveY = 0, 0
 end
 
 function Camera.Update()
