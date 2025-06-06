@@ -21,16 +21,6 @@ local function isoToTile(iso_x, iso_y)
     return col, row
 end
 
-function Camera.IsBlockedAtIsoPos(iso_x, iso_y)
-    local col, row = isoToTile(iso_x, iso_y)
-    col = math.floor(col + 0.5)
-    row = math.floor(row + 0.5)
-    if Camera.tilemap[row][col] == 0 then
-        return false
-    end
-    return true
-end
-
 function Camera.SetDepartPoint()
     -- Calculer la taille de la carte
     local minRow, maxRow = math.huge, -math.huge
@@ -52,14 +42,35 @@ function Camera.SetDepartPoint()
 
     local centerX = (centerTileX - centerTileY) * (tileWidth / 2)
     local centerY = (centerTileX + centerTileY) * (tileHeight / 2)
-
     Camera.x = centerX + 520
     Camera.y = centerY - 240
     Camera.initialized = true
 end
 
-function Camera.DrawMiniMap(tilemap)
+function PointInMenu(mouseX, mouseY)
+    local menux, menuy = 10, 10
+    local menuWidth, menuHeight = 80, 350
+    return mouseX >= menux and mouseX <= menux + menuWidth and
+        mouseY >= menuy and mouseY <= menuy + menuHeight
+end
 
+function pointInPolygon(points, px, py)
+    local inside = false
+    local n = #points / 2
+    local j = n
+
+    for i = 1, n do
+        local xi, yi = points[2 * i - 1], points[2 * i]
+        local xj, yj = points[2 * j - 1], points[2 * j]
+
+        if ((yi > py) ~= (yj > py)) and
+            (px < (xj - xi) * (py - yi) / (yj - yi) + xi) then
+            inside = not inside
+        end
+        j = i
+    end
+
+    return inside
 end
 
 function Camera.Draw()
@@ -86,31 +97,42 @@ function Camera.Draw()
     local end_col = math.ceil(max_col) + buffer
     local start_row = math.floor(min_row) - buffer
     local end_row = math.ceil(max_row) + buffer
+    local mouseX, mouseY = love.mouse.getPosition()
     for row = start_row, end_row do
         for col = start_col, end_col do
             local tile = Camera.tilemap[row] and Camera.tilemap[row][col]
 
-            if tile then
-                local iso_x = (col - row) * (tileWidth / 2)
-                local iso_y = (col + row) * (tileHeight / 2)
-                local screen_x = iso_x - Camera.x + (Camera.width / 2)
-                local screen_y = iso_y - Camera.y
-                local points = {
-                    screen_x, screen_y + tileHeight / 2,
-                    screen_x + tileWidth / 2, screen_y,
-                    screen_x + tileWidth, screen_y + tileHeight / 2,
-                    screen_x + tileWidth / 2, screen_y + tileHeight
-                }
-                if tile == 1 then
-                    love.graphics.setColor(1, 1, 1)
-                else
-                    love.graphics.setColor(0, 0, 0)
-                end
-                love.graphics.polygon("fill", points)
+
+            local iso_x = (col - row) * (tileWidth / 2)
+            local iso_y = (col + row) * (tileHeight / 2)
+            local screen_x = iso_x - Camera.x + (Camera.width / 2)
+            local screen_y = iso_y - Camera.y
+            local points = {
+                screen_x,
+                screen_y + tileHeight / 2,
+                screen_x + tileWidth / 2, screen_y,
+                screen_x + tileWidth,
+                screen_y + tileHeight / 2,
+                screen_x + tileWidth / 2,
+                screen_y + tileHeight
+            }
+
+            if tile == 1 then
                 love.graphics.setColor(1, 1, 1)
-                love.graphics.setLineWidth(1)
-                love.graphics.polygon("line", points)
+            elseif tile == 0 then
+                love.graphics.setColor(1, 0, 0)
+            else
+                love.graphics.setColor(0, 0, 0)
             end
+            if
+                pointInPolygon(points, mouseX, mouseY) and not PointInMenu(mouseX, mouseY)
+            then
+                love.graphics.setColor(0, 1, 0)
+            end
+            love.graphics.polygon("fill", points)
+            love.graphics.setColor(1, 1, 1)
+            love.graphics.setLineWidth(1)
+            love.graphics.polygon("line", points)
         end
     end
 end
@@ -124,15 +146,8 @@ function Camera.PreUpdate()
 end
 
 function Camera.Update()
-    local newX = Camera.x + Camera.moveX
-    local newY = Camera.y + Camera.moveY
-    if not Camera.IsBlockedAtIsoPos(newX, newY) then
-        Camera.x = newX
-        Camera.y = newY
-    else
-        Camera.moveX = 0
-        Camera.moveY = 0
-    end
+    Camera.moveX = Camera.x + Camera.moveX
+    Camera.moveY = Camera.y + Camera.moveY
 end
 
 function Camera.moveNorth()
