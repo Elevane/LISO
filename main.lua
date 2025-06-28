@@ -22,6 +22,12 @@ function love.load()
     end
 end
 
+function love.wheelmoved(x, y)
+    if screen == "game" then
+        game.wheelMoved(x, y)
+    end
+end
+
 function love.update(dt)
     if screen == "main" then
         mainMenu.Update(dt, goTo)

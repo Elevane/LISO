@@ -24,6 +24,34 @@ function game.Draw()
     end
 end
 
+function game.wheelMoved(x, y)
+    if y == 0 then return end
+
+    local old_scale = camera.scale or 1.0
+    local new_scale = old_scale + y * 0.1
+    new_scale = math.max(0.5, math.min(3, new_scale))
+
+    if new_scale == old_scale then return end
+
+    -- Position de la souris
+    local mouseX, mouseY = love.mouse.getPosition()
+
+    -- Convertir la position écran -> monde (avant le zoom)
+    local worldX_before = (mouseX - camera.width / 2) / old_scale + camera.x
+    local worldY_before = mouseY / old_scale + camera.y
+
+    -- Appliquer le nouveau zoom
+    camera.scale = new_scale
+
+    -- Nouvelle position monde du curseur (après zoom)
+    local worldX_after = (mouseX - camera.width / 2) / new_scale + camera.x
+    local worldY_after = mouseY / new_scale + camera.y
+
+    -- Décalage à appliquer à la caméra pour que le point sous la souris reste fixe
+    camera.x = camera.x + (worldX_before - worldX_after)
+    camera.y = camera.y + (worldY_before - worldY_after)
+end
+
 function game.Update()
     local right = love.keyboard.isDown("right")
     local left = love.keyboard.isDown("left")

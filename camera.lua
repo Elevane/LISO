@@ -1,10 +1,12 @@
-local tileWidth = 64
+local tileWidth = 32
 local tileHeight = 32
-local speed = 5 --vitesse de déplacement
+local speed = 10 --vitesse de déplacement
 
 
 local Camera = {
+    scale = 1.0,
     initialized = false,
+    spriteTile = {},
     x = 0,
     y = 0,
     width = 920 * 2,
@@ -41,9 +43,9 @@ function Camera.SetDepartPoint()
     local centerTileY = minRow + (mapHeight - 1) / 2
 
     local centerX = (centerTileX - centerTileY) * (tileWidth / 2)
-    local centerY = (centerTileX + centerTileY) * (tileHeight / 2)
-    Camera.x = centerX + 520
-    Camera.y = centerY - 240
+    local centerY = (centerTileX + centerTileY) * (tileHeight / 4)
+    Camera.x = centerX
+    Camera.y = centerY
     Camera.initialized = true
 end
 
@@ -78,17 +80,21 @@ function Camera.Draw()
     if not Camera.initialized then
         Camera.SetDepartPoint()
     end
+
+    local scale = Camera.scale or 1.0
     local buffer = 2
-    --define viewport
+    local halfW, halfH = Camera.width / 2, Camera.height / 2
+
+    -- définir les coins de la vue
     local corners = {
-        { x = Camera.x - Camera.width / 2, y = Camera.y },
-        { x = Camera.x + Camera.width / 2, y = Camera.y },
-        { x = Camera.x - Camera.width / 2, y = Camera.y + Camera.height },
-        { x = Camera.x + Camera.width / 2, y = Camera.y + Camera.height },
+        { x = Camera.x - halfW / scale, y = Camera.y },
+        { x = Camera.x + halfW / scale, y = Camera.y },
+        { x = Camera.x - halfW / scale, y = Camera.y + Camera.height / scale },
+        { x = Camera.x + halfW / scale, y = Camera.y + Camera.height / scale },
     }
+
     local min_col, max_col = math.huge, -math.huge
     local min_row, max_row = math.huge, -math.huge
-
 
     for _, corner in ipairs(corners) do
         local col, row = isoToTile(corner.x, corner.y)
@@ -97,54 +103,77 @@ function Camera.Draw()
         min_row = math.min(min_row, row)
         max_row = math.max(max_row, row)
     end
-    --define viewport in tilemap
+
     local start_col = math.floor(min_col) - buffer
     local end_col = math.ceil(max_col) + buffer
     local start_row = math.floor(min_row) - buffer
     local end_row = math.ceil(max_row) + buffer
     local mouseX, mouseY = love.mouse.getPosition()
 
-    --draw tiles
     for row = start_row, end_row do
         for col = start_col, end_col do
             local tile = Camera.tilemap[row] and Camera.tilemap[row][col]
 
-
             local iso_x = (col - row) * (tileWidth / 2)
-            local iso_y = (col + row) * (tileHeight / 2)
-            local screen_x = iso_x - Camera.x + (Camera.width / 2)
-            local screen_y = iso_y - Camera.y
-            local points = {
-                screen_x,
-                screen_y + tileHeight / 2,
-                screen_x + tileWidth / 2, screen_y,
-                screen_x + tileWidth,
-                screen_y + tileHeight / 2,
-                screen_x + tileWidth / 2,
-                screen_y + tileHeight
-            }
+            local iso_y = (col + row) * (tileHeight / 4)
 
-            if tile == 1 then
-                love.graphics.setColor(1, 1, 1)
-            elseif tile == 0 then
-                love.graphics.setColor(1, 0, 0)
-            else
-                love.graphics.setColor(0, 0, 0)
+            local screen_x = (iso_x - Camera.x) * scale + halfW
+            local screen_y = (iso_y - Camera.y) * scale + halfH
+
+            local sw = tileWidth * scale
+            local sh = tileHeight * scale
+
+            local points = {
+                screen_x, screen_y + sh / 2,
+                screen_x + sw / 2, screen_y,
+                screen_x + sw, screen_y + sh / 2,
+                screen_x + sw / 2, screen_y + sh
+            }
+            if tile == 0 then
+                local sprite = Camera.spriteTile.dirt
+                if sprite then
+                    local spriteWidth = sprite:getWidth()               -- 32
+                    local spriteHeight = sprite:getHeight()             -- 32
+
+                    local scale_x = (tileWidth / spriteWidth) * scale   -- 64 / 32 = 2
+                    local scale_y = (tileHeight / spriteHeight) * scale -- 32 / 32 = 1
+
+                    love.graphics.draw(
+                        sprite,
+                        screen_x,
+                        screen_y,
+                        0, scale_x, scale_y,
+                        spriteWidth / 2, spriteHeight / 2
+                    )
+                end
+            elseif tile == 1 then
+                local sprite = Camera.spriteTile.grass
+                if sprite then
+                    local spriteWidth = sprite:getWidth()               -- 32
+                    local spriteHeight = sprite:getHeight()             -- 32
+
+                    local scale_x = (tileWidth / spriteWidth) * scale   -- 64 / 32 = 2
+                    local scale_y = (tileHeight / spriteHeight) * scale -- 32 / 32 = 1
+
+                    love.graphics.draw(
+                        sprite,
+                        screen_x,
+                        screen_y,
+                        0, scale_x, scale_y,
+                        spriteWidth / 2, spriteHeight / 2
+                    )
+                end
             end
-            if
-                pointInIsoTile(points, mouseX, mouseY) and not PointInMenu(mouseX, mouseY)
-            then
+            if pointInIsoTile(points, mouseX, mouseY) and not PointInMenu(mouseX, mouseY) then
                 love.graphics.setColor(0, 1, 0)
             end
-            love.graphics.polygon("fill", points)
-            love.graphics.setColor(1, 1, 1)
-            love.graphics.setLineWidth(1)
-            love.graphics.polygon("line", points)
         end
     end
 end
 
 function Camera.Load(tilemap)
+    Camera.spriteTile.dirt = love.graphics.newImage("Assets/sprites/dirt.png")
+    Camera.spriteTile.grass = love.graphics.newImage("Assets/sprites/grass.png")
     Camera.tilemap = tilemap
 end
 
