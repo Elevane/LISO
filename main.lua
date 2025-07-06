@@ -1,7 +1,7 @@
 local mainMenu = require("mainMenu")
 local game = require("game")
 local screen = "main"
-local cursorImage
+local cursorImage = love.graphics.newImage("Assets/cursor.png")
 
 local function goTo(screenName)
     if screenName == "Play" then
@@ -13,8 +13,7 @@ local function goTo(screenName)
 end
 
 function love.load()
-    --love.mouse.setVisible(false) -- Hide the default mouse cursor
-    --cursorImage = love.graphics.newImage("Assets/cursor.png")
+    love.mouse.setVisible(false) -- Hide the default mouse cursor
     if screen == "main" then
         mainMenu.Load(goTo)
     elseif screen == "game" then
@@ -37,11 +36,11 @@ function love.update(dt)
 end
 
 function love.draw()
-    --local mouseX, mouseY = love.mouse.getPosition()
+    local mouseX, mouseY = love.mouse.getPosition()
     -- Optionally offset to center the image
-    --local cursorWidth = cursorImage:getWidth()
-    --local cursorHeight = cursorImage:getHeight()
-    --love.graphics.draw(cursorImage, mouseX - cursorWidth / 2, mouseY - cursorHeight / 2)
+    local cursorWidth = cursorImage:getWidth()
+    local cursorHeight = cursorImage:getHeight()
+    love.graphics.draw(cursorImage, mouseX - cursorWidth / 2, mouseY - cursorHeight / 2)
     if screen == "main" then
         mainMenu.Draw()
     elseif screen == "game" then
